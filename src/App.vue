@@ -1,9 +1,9 @@
 <template>
-	<div class="min-h-screen bg-gray-100">
+	<div class="flex flex-col min-h-screen bg-gray-100">
 		<header class="bg-white shadow">
 			<nav class="container mx-auto px-6 py-3">
 				<div class="flex justify-between items-center">
-					<router-link to="/" class="text-xl font-semibold text-gray-800">Job Portal</router-link>
+					<router-link to="/" class="text-xl font-semibold text-gray-800">Grow Your Career</router-link>
 					<div class="space-x-4">
 						<router-link to="/login" class="text-gray-600 hover:text-gray-800">Login</router-link>
 						<router-link to="/signup" class="text-gray-600 hover:text-gray-800">Sign Up</router-link>
@@ -14,13 +14,13 @@
 			</nav>
 		</header>
 
-		<main class="container mx-auto px-6 py-8">
+		<main class="flex-grow container mx-auto px-6 py-8">
 			<router-view></router-view>
 		</main>
 
 		<footer class="bg-white shadow mt-8">
 			<div class="container mx-auto px-6 py-3">
-				<p class="text-center text-gray-600">© 2023 Job Portal. All rights reserved.</p>
+				<p class="text-center text-gray-600">© {{ new Date().getFullYear() }} Grow Your Career. All rights reserved.</p>
 			</div>
 		</footer>
 	</div>
