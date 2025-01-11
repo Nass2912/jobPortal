@@ -3,12 +3,20 @@
 		<header class="bg-white shadow">
 			<nav class="container mx-auto px-6 py-3">
 				<div class="flex justify-between items-center">
-					<router-link to="/" class="text-xl font-semibold text-gray-800">Grow Your Career</router-link>
+					<router-link to="/" class="flex items-center">
+						<img src="@/assets/logo.png" alt="Logo" class="h-12 mr-3" />
+						<span class="text-xl font-semibold text-[#46b7ff]">Grow Your Career</span>
+					</router-link>
 					<div class="space-x-4">
-						<router-link to="/login" class="text-gray-600 hover:text-gray-800">Login</router-link>
-						<router-link to="/signup" class="text-gray-600 hover:text-gray-800">Sign Up</router-link>
-						<router-link to="/add-job" class="text-gray-600 hover:text-gray-800">Add Job</router-link>
-						<router-link to="/profile" class="text-gray-600 hover:text-gray-800">Profile</router-link>
+						<!-- Replace Login and Sign Up links with buttons -->
+						<router-link to="/login">
+							<button class="px-4 py-2 text-white bg-[#46b7ff] hover:bg-blue-700 rounded-md">Login</button>
+						</router-link>
+						<router-link to="/signup">
+							<button class="px-4 py-2 text-white bg-blue-600 hover:bg-[#46b7ff] rounded-md">Sign Up</button>
+						</router-link>
+						<!-- <router-link to="/add-job" class="text-gray-600 hover:text-gray-800">Add Job</router-link>
+						<router-link to="/profile" class="text-gray-600 hover:text-gray-800">Profile</router-link> -->
 					</div>
 				</div>
 			</nav>
