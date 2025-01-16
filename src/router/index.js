@@ -4,6 +4,7 @@ import Login from '../components/LoginPage.vue'
 import Signup from '../components/SignupPage.vue'
 import AddJob from '../components/AddJob.vue'
 import Profile from '../components/ProfilePage.vue'
+import Job from '../components/JobPage.vue'
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: Profile
+  },
+  {
+    path: '/job',
+    name: 'Job',
+    component: Job
   }
 ]
 

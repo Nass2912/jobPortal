@@ -39,9 +39,9 @@
 						>
 							<option value="">All Locations</option>
 							<option value="Remote">Remote</option>
-							<option value="New York, NY">New York, NY</option>
-							<option value="San Francisco, CA">San Francisco, CA</option>
-							<option value="London, UK">London, UK</option>
+							<option value="Port-Louis">Port-Louis</option>
+							<option value="Moka">Moka</option>
+							<option value="Ebene">Ebene</option>
 						</select>
 					</div>
 					<div>
@@ -102,7 +102,7 @@
 						<div class="flex justify-between items-center">
 							<span class="text-sm text-gray-500">Posted {{ job.postedDate }}</span>
 							<a
-								href="#"
+								@click="goToShowPage"
 								class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 							>
 								Apply Now
@@ -180,6 +180,13 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter(); // Use useRouter for navigation
+
+const goToShowPage = () => {
+	router.push('/job'); // Navigate to the /job page
+};
 
 const jobs = ref([
 	{
@@ -196,7 +203,7 @@ const jobs = ref([
 		id: 2,
 		title: 'Backend Engineer',
 		company: 'Data Systems Inc.',
-		location: 'New York, NY',
+		location: 'Port-Louis',
 		jobType: 'Full-time',
 		experience: 'Mid',
 		description: "We're seeking a talented backend engineer to develop robust APIs and microservices using Node.js and PostgreSQL.",
@@ -206,7 +213,7 @@ const jobs = ref([
 		id: 3,
 		title: 'UX/UI Designer',
 		company: 'Creative Solutions',
-		location: 'San Francisco, CA',
+		location: 'Moka',
 		jobType: 'Contract',
 		experience: 'Mid',
 		description: "Help us create intuitive and beautiful user interfaces for our clients' web and mobile applications.",
@@ -226,7 +233,7 @@ const jobs = ref([
 		id: 5,
 		title: 'Data Scientist',
 		company: 'AI Research Lab',
-		location: 'London, UK',
+		location: 'Ebene',
 		jobType: 'Full-time',
 		experience: 'Senior',
 		description: 'Join our team to develop machine learning models and analyze complex datasets for groundbreaking AI research.',

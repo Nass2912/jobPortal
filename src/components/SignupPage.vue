@@ -33,6 +33,21 @@
 						required
 					/>
 				</div>
+				<div class="mb-4">
+					<label for="role" class="block text-gray-700 text-sm font-bold mb-2"
+						>Are you a job seeker or searching for talents to join your team?</label
+					>
+					<select
+						id="role"
+						v-model="role"
+						class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+						required
+					>
+						<option disabled value="">Select below</option>
+						<option value="job seeker">Job Seeker</option>
+						<option value="job publisher">Job Publisher</option>
+					</select>
+				</div>
 				<div class="flex items-center justify-between">
 					<button
 						type="submit"
@@ -52,19 +67,31 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { signUp } from '../supabaseClient'; // Assuming you've updated this function
 
 const router = useRouter();
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
+const role = ref('');
 
 const handleSignup = async () => {
-	// Here you would typically make an API call to register the user
-	console.log('Signup attempt with:', name.value, email.value, password.value);
+	try {
+		// Supabase sign-up with role
+		const { data, error } = await signUp(email.value, password.value, role.value, name.value);
 
-	// For now, we'll just simulate a successful signup
-	alert('Signup successful!');
-	router.push('/login');
+		if (error) {
+			console.error('Signup error:', error.message);
+			return;
+		}
+
+		console.log('User signed up:', data);
+		alert('Signup successful! Please check your email to confirm your account.');
+		router.push('/login'); // Redirect to login page
+	} catch (err) {
+		console.error('Unexpected error:', err);
+		alert('An unexpected error occurred. Please try again.');
+	}
 };
 </script>

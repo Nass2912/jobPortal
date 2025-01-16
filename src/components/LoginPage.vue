@@ -42,6 +42,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { login } from '../supabaseClient';
 
 const router = useRouter();
 
@@ -49,11 +50,19 @@ const email = ref('');
 const password = ref('');
 
 const handleLogin = async () => {
-	// Here you would typically make an API call to authenticate the user
-	console.log('Login attempt with:', email.value, password.value);
+	try {
+		// Supabase sign-in
+		const { data, error } = await login(email.value, password.value);
 
-	// For now, we'll just simulate a successful login
-	alert('Login successful!');
-	router.push('/');
+		if (error) {
+			console.error('Login error:', error.message);
+			return;
+		}
+
+		console.log('User logged in:', data);
+		router.push('/'); // Redirect to the home page
+	} catch (err) {
+		console.error('Unexpected error:', err);
+	}
 };
 </script>
