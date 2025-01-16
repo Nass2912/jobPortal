@@ -20,9 +20,11 @@
 						<div v-else class="flex items-center space-x-4">
 							<!-- User Icon and Greeting -->
 							<div class="flex items-center space-x-2">
+								<!-- Use the uploaded icon -->
 								<span class="text-xl font-semibold">Hello 👋, {{ user.user_metadata.name || user.email }}</span>
+								<img @click="goToProfile" src="@/assets/image.png" alt="User Icon" class="cursor-pointer h-8 w-8 rounded-full" />
 							</div>
-							<button @click="logout" class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md">Logout</button>
+							<!-- <button @click="logout" class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md">Logout</button> -->
 						</div>
 					</div>
 				</div>
@@ -41,39 +43,41 @@
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue';
 import { supabase } from './supabaseClient';
+import { useRouter } from 'vue-router';
 
-export default {
-	name: 'App',
-	data() {
-		return {
-			user: null // This will store the current user
-		};
-	},
-	async created() {
-		// Check if a user is already signed in
-		const {
-			data: { session }
-		} = await supabase.auth.getSession();
-		this.user = session ? session.user : null;
-		console.log(this.user);
+// Declare reactive variable for the user
+const user = ref(null);
+const router = useRouter();
 
-		// Listen for auth state changes
-		supabase.auth.onAuthStateChange((_event, session) => {
-			this.user = session ? session.user : null;
-		});
-	},
-	methods: {
-		// Logout function
-		async logout() {
-			const { error } = await supabase.auth.signOut();
-			if (error) {
-				console.error('Logout error:', error.message);
-			} else {
-				this.user = null; // Clear user data after logging out
-			}
-		}
-	}
+// Check if a user is already signed in when the component is mounted
+onMounted(async () => {
+	const {
+		data: { session }
+	} = await supabase.auth.getSession();
+	user.value = session ? session.user : null;
+	console.log(user.value);
+
+	// Listen for auth state changes
+	supabase.auth.onAuthStateChange((_event, session) => {
+		user.value = session ? session.user : null;
+	});
+});
+
+// Logout function
+// const logout = async () => {
+// 	const { error } = await supabase.auth.signOut();
+// 	if (error) {
+// 		console.error('Logout error:', error.message);
+// 	} else {
+// 		user.value = null; // Clear user data after logging out
+// 	}
+// };
+
+// Function to navigate to the profile page
+const goToProfile = () => {
+	router.push('/profile');
 };
 </script>

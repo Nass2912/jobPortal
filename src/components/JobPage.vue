@@ -31,9 +31,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const job = ref({
 	title: '',
 	company: '',
@@ -69,8 +70,7 @@ const fetchJobDetails = async () => {
 };
 
 const applyForJob = () => {
-	alert('You have successfully applied for the job!');
-	// Here, you can add functionality to handle job application (e.g., save to database, send email, etc.)
+	router.push('/profile');
 };
 </script>
 

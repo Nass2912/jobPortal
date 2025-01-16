@@ -8,29 +8,28 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export const signUp = async (email, password, name, role) => {
   try {
-    const { data, error } = await supabase.auth.signUp(
-      {
-        email,
-        password
-      },
-      {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
         data: {
           name, // Storing name in user metadata
           role  // Storing role in user metadata
         }
       }
-    )
+    });
 
     if (error) {
-      console.error('Error signing up:', error.message)
+      console.error('Error signing up:', error.message);
     } else {
-      console.log('User signed up successfully:', data)
-      return data
+      console.log('User signed up successfully:', data);
+      return data;
     }
   } catch (err) {
-    console.error('Unexpected error:', err)
+    console.error('Unexpected error:', err);
   }
-}
+};
+
 
 
 

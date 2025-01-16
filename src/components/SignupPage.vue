@@ -79,7 +79,7 @@ const role = ref('');
 const handleSignup = async () => {
 	try {
 		// Supabase sign-up with role
-		const { data, error } = await signUp(email.value, password.value, role.value, name.value);
+		const { data, error } = await signUp(email.value, password.value, name.value, role.value);
 
 		if (error) {
 			console.error('Signup error:', error.message);

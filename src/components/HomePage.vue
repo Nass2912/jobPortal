@@ -61,7 +61,8 @@
 			</div>
 
 			<!-- Job Listings -->
-			<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+			<!-- Job Listings -->
+			<div class="space-y-6">
 				<div
 					v-for="job in filteredJobs"
 					:key="job.id"
@@ -103,9 +104,9 @@
 							<span class="text-sm text-gray-500">Posted {{ job.postedDate }}</span>
 							<a
 								@click="goToShowPage"
-								class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+								class="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 							>
-								Apply Now
+								More Info
 								<svg class="ml-2 -mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
 									<path
 										fill-rule="evenodd"
