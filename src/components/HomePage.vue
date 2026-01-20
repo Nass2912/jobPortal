@@ -155,7 +155,7 @@
         v-if="!loading && filteredJobs.length === 0"
         class="text-center text-gray-600 mt-8 bg-white shadow-md rounded-lg p-6"
       >
-        No job listings found matching your criteria.
+        Login or Signup to view jobs
       </p>
     </div>
   </div>
@@ -170,54 +170,54 @@ const router = useRouter();
 
 const jobs = ref([]);
 const loading = ref(true);
-const error = ref(null);
+const user = ref(null);
 
 const searchQuery = ref('');
 const selectedJobType = ref('');
 const selectedLocation = ref('');
 const selectedExperience = ref('');
 
-const goToShowPage = (jobId) => {
-  router.push(`/job/${jobId}`);
-};
-
+// --- Fetch user + jobs ---
 onMounted(async () => {
-  loading.value = true;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const { data, error: fetchError } = await supabase
+  user.value = session?.user || null;
+
+  if (!user.value) {
+    // ❌ Not logged in → show no jobs
+    jobs.value = [];
+    loading.value = false;
+    return;
+  }
+
+  // ✅ Logged in → fetch jobs
+  const { data, error } = await supabase
     .from('jobs')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (fetchError) {
-    error.value = fetchError.message;
-    console.error(fetchError);
+  if (error) {
+    console.error('Error fetching jobs:', error);
   } else {
-    jobs.value = data.map((job) => ({
-      id: job.id,
-      title: job.title,
-      company: job.company || 'Company',
-      location: job.location,
-      jobType: job.job_type || 'Full-time',
-      experience: job.experience || 'Mid',
-      description: job.description,
-      postedDate: timeAgo(job.created_at),
-    }));
+    jobs.value = data || [];
   }
 
   loading.value = false;
 });
 
+// --- Filters ---
 const filteredJobs = computed(() => {
   return jobs.value.filter((job) => {
     const matchesSearch =
       job.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (job.company || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       job.description.toLowerCase().includes(searchQuery.value.toLowerCase());
 
     const matchesJobType =
       selectedJobType.value === '' ||
-      job.jobType === selectedJobType.value;
+      job.job_type === selectedJobType.value;
 
     const matchesLocation =
       selectedLocation.value === '' ||
@@ -236,18 +236,8 @@ const filteredJobs = computed(() => {
   });
 });
 
-function timeAgo(dateString) {
-  const now = new Date();
-  const past = new Date(dateString);
-  const diff = Math.floor((now - past) / 1000);
-
-  const minutes = Math.floor(diff / 60);
-  const hours = Math.floor(diff / 3600);
-  const days = Math.floor(diff / 86400);
-
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  return 'Just now';
-}
+// --- Navigation ---
+const goToShowPage = (jobId) => {
+  router.push(`/job/${jobId}`);
+};
 </script>

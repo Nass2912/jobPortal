@@ -3,7 +3,7 @@ import HomePage from '../components/HomePage.vue';
 import LoginPage from '../components/LoginPage.vue';
 import SignupPage from '../components/SignupPage.vue';
 import ProfilePage from '../components/ProfilePage.vue';
-import AddJob from '../components/AddJob.vue';
+import PostJob from '../components/PostJob.vue';
 import JobPage from '../components/JobPage.vue';
 
 
@@ -14,8 +14,8 @@ const routes = [
   { path: '/login', component: LoginPage },
   { path: '/signup', component: SignupPage },
   { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
-  { path: '/add-job', component: AddJob, meta: { requiresAuth: true } },
-  { path: '/job/:id', component: JobPage, props: true },
+  { path: '/post-job', component: PostJob, meta: { requiresAuth: true } },
+  { path: '/job/:id', component: JobPage, props: true }
 ];
 
 const router = createRouter({
