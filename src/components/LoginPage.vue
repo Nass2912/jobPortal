@@ -39,30 +39,32 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { login } from '../supabaseClient';
+<script>
+import { signIn } from '../services/auth';
 
-const router = useRouter();
-
-const email = ref('');
-const password = ref('');
-
-const handleLogin = async () => {
-	try {
-		// Supabase sign-in
-		const { data, error } = await login(email.value, password.value);
-
-		if (error) {
-			console.error('Login error:', error.message);
-			return;
-		}
-
-		console.log('User logged in:', data);
-		router.push('/'); // Redirect to the home page
-	} catch (err) {
-		console.error('Unexpected error:', err);
-	}
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      error: null,
+      loading: false,
+    };
+  },
+  methods: {
+    async handleLogin() {
+      this.loading = true;
+      this.error = null;
+      try {
+        await signIn(this.email, this.password);
+        this.$router.push('/profile');
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
 };
 </script>
+

@@ -56,23 +56,44 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+<script>
+import { supabase } from '../supabaseClient';
 
-const router = useRouter();
+export default {
+  data() {
+    return {
+      title: '',
+      description: '',
+      location: '',
+      salary_range: '',
+      error: null,
+    };
+  },
+  methods: {
+    async postJob() {
+      this.error = null;
 
-const title = ref('');
-const company = ref('');
-const location = ref('');
-const description = ref('');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-const handleAddJob = async () => {
-	// Here you would typically make an API call to add the job
-	console.log('Adding job:', { title: title.value, company: company.value, location: location.value, description: description.value });
+      try {
+        const { error } = await supabase.from('jobs').insert({
+          recruiter_id: user.id,
+          title: this.title,
+          description: this.description,
+          location: this.location,
+          salary_range: this.salary_range,
+        });
 
-	// For now, we'll just simulate a successful job addition
-	alert('Job added successfully!');
-	router.push('/');
+        if (error) throw error;
+
+        alert('Job posted successfully');
+        this.$router.push('/profile');
+      } catch (err) {
+        this.error = err.message;
+      }
+    },
+  },
 };
 </script>

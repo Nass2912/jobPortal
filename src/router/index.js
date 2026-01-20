@@ -1,47 +1,38 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../components/HomePage.vue'
-import Login from '../components/LoginPage.vue'
-import Signup from '../components/SignupPage.vue'
-import AddJob from '../components/AddJob.vue'
-import Profile from '../components/ProfilePage.vue'
-import Job from '../components/JobPage.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import HomePage from '../components/HomePage.vue';
+import LoginPage from '../components/LoginPage.vue';
+import SignupPage from '../components/SignupPage.vue';
+import ProfilePage from '../components/ProfilePage.vue';
+import AddJob from '../components/AddJob.vue';
+import JobPage from '../components/JobPage.vue';
+
+
+import { supabase } from '../supabaseClient';
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login
-  },
-  {
-    path: '/signup',
-    name: 'Signup',
-    component: Signup
-  },
-  {
-    path: '/add-job',
-    name: 'AddJob',
-    component: AddJob
-  },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: Profile
-  },
-  {
-    path: '/job',
-    name: 'Job',
-    component: Job
-  }
-]
+  { path: '/', component: HomePage },
+  { path: '/login', component: LoginPage },
+  { path: '/signup', component: SignupPage },
+  { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
+  { path: '/add-job', component: AddJob, meta: { requiresAuth: true } },
+  { path: '/job/:id', component: JobPage, props: true },
+];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  history: createWebHistory(),
+  routes,
+});
 
-export default router
+router.beforeEach(async (to, from, next) => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (to.meta.requiresAuth && !user) {
+    next('/login');
+  } else {
+    next();
+  }
+});
+
+export default router;

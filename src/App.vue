@@ -21,7 +21,7 @@
 							<!-- User Icon and Greeting -->
 							<div class="flex items-center space-x-2">
 								<!-- Use the uploaded icon -->
-								<span class="text-xl font-semibold">Hello 👋, {{ user.user_metadata.name || user.email }}</span>
+								<span class="text-xl font-semibold">Hello 👋, {{ user.full_name || user.email }}</span>
 								<img @click="goToProfile" src="@/assets/image.png" alt="User Icon" class="cursor-pointer h-8 w-8 rounded-full" />
 							</div>
 							<!-- <button @click="logout" class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md">Logout</button> -->

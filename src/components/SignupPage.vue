@@ -64,34 +64,33 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { signUp } from '../supabaseClient'; // Assuming you've updated this function
+<script>
+import { signUp } from '../services/auth';
 
-const router = useRouter();
-
-const name = ref('');
-const email = ref('');
-const password = ref('');
-const role = ref('');
-
-const handleSignup = async () => {
-	try {
-		// Supabase sign-up with role
-		const { data, error } = await signUp(email.value, password.value, name.value, role.value);
-
-		if (error) {
-			console.error('Signup error:', error.message);
-			return;
-		}
-
-		console.log('User signed up:', data);
-		alert('Signup successful! Please check your email to confirm your account.');
-		router.push('/login'); // Redirect to login page
-	} catch (err) {
-		console.error('Unexpected error:', err);
-		alert('An unexpected error occurred. Please try again.');
-	}
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      error: null,
+      loading: false,
+    };
+  },
+  methods: {
+    async handleSignup() {
+      this.loading = true;
+      this.error = null;
+      try {
+        await signUp(this.email, this.password);
+        alert('Account created. You can now log in.');
+        this.$router.push('/login');
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
 };
 </script>
+
