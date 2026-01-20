@@ -1,4 +1,4 @@
-# job-portal
+# TalentQuest
 
 ## Project setup
 ```
