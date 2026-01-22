@@ -95,24 +95,25 @@
     <!-- Mobile Menu -->
     <div v-if="mobileMenuOpen" class="md:hidden mt-4 border-t pt-4 space-y-4">
 
-      <!-- Not logged in -->
-      <div v-if="!user" class="space-y-3">
-        <router-link to="/login" @click="mobileMenuOpen = false">
-          <button
-            class="w-full px-4 py-2 text-white bg-[#46b7ff] hover:bg-blue-700 rounded-md"
-          >
-            Login
-          </button>
-        </router-link>
+<!-- Not logged in -->
+<div v-if="!user">
+  <router-link to="/login" @click="mobileMenuOpen = false">
+    <button
+      class="w-full mb-3 px-4 py-2 text-white bg-[#46b7ff] hover:bg-blue-700 rounded-md"
+    >
+      Login
+    </button>
+  </router-link>
 
-        <router-link to="/signup" @click="mobileMenuOpen = false">
-          <button
-            class="w-full px-4 py-2 text-white bg-blue-600 hover:bg-[#46b7ff] rounded-md"
-          >
-            Sign Up
-          </button>
-        </router-link>
-      </div>
+  <router-link to="/signup" @click="mobileMenuOpen = false">
+    <button
+      class="w-full px-4 py-2 text-white bg-blue-600 hover:bg-[#46b7ff] rounded-md"
+    >
+      Sign Up
+    </button>
+  </router-link>
+</div>
+
 
       <!-- Logged in -->
       <div v-else class="space-y-4">
