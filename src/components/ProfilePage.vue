@@ -33,7 +33,18 @@
       <!-- ================= RECRUITER DASHBOARD ================= -->
       <div v-if="profile.role === 'recruiter'" class="mb-12">
         <h2 class="text-2xl font-bold mb-6">Recruiter Dashboard</h2>
-
+  <div class="flex justify-end mb-6">
+    <button
+      @click="$router.push('/post-job')"
+      class="inline-flex items-center gap-2
+             bg-indigo-600 hover:bg-indigo-700
+             text-white font-semibold
+             px-5 py-2 rounded-lg
+             shadow"
+    >
+      ➕ Post New Job
+    </button>
+  </div>
         <!-- My Jobs -->
         <h3 class="font-semibold mb-2">My Jobs</h3>
         <table v-if="myJobs.length" class="min-w-full border mb-8">
