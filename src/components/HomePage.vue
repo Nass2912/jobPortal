@@ -67,6 +67,16 @@
             </select>
           </div>
         </div>
+        <div class="flex justify-end mt-4">
+          <button
+            type="button"
+            @click="clearFilters"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                  bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+          >
+            ✖ Clear Filters
+          </button>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -236,8 +246,17 @@ const filteredJobs = computed(() => {
   });
 });
 
+const clearFilters = () => {
+  searchQuery.value = '';
+  selectedJobType.value = '';
+  selectedLocation.value = '';
+  selectedExperience.value = '';
+};
+
 // --- Navigation ---
 const goToShowPage = (jobId) => {
   router.push(`/job/${jobId}`);
 };
+
+
 </script>

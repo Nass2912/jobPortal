@@ -46,11 +46,23 @@
         <textarea v-model="description" rows="5" required class="input"></textarea>
       </div>
 
-      <button
-        type="submit"
-        :disabled="loading"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded disabled:opacity-50"
-      >
+      <!-- ================= REQUIRED SKILLS ================= -->
+      <div class="mt-6">
+        <label class="block text-gray-700 font-bold mb-2">
+          Required Skills
+        </label>
+
+        <div class="grid grid-cols-2 gap-2">
+          <label v-for="skill in skills" :key="skill.id" class="flex items-center space-x-2">
+            <input type="checkbox" :value="skill.id" v-model="selectedSkills" />
+            <span>{{ skill.name }}</span>
+          </label>
+        </div>
+      </div>
+
+
+      <button type="submit" :disabled="loading"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded disabled:opacity-50">
         {{ loading ? 'Posting...' : 'Post Job' }}
       </button>
     </form>
@@ -70,10 +82,18 @@ export default {
       experience: '',
       description: '',
       loading: false,
+      skills: [],
+      selectedSkills: [],
     };
   },
 
   async mounted() {
+    const { data } = await supabase
+      .from('skills')
+      .select('*')
+      .order('name');
+
+    this.skills = data || [];
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
       this.$router.push('/login');
@@ -98,22 +118,45 @@ export default {
 
       const { data: { session } } = await supabase.auth.getSession();
 
-      const { error } = await supabase.from('jobs').insert({
-        title: this.title,
-        company: this.company,
-        location: this.location,
-        job_type: this.jobType,
-        experience: this.experience,
-        description: this.description,
-        recruiter_id: session.user.id,
-      });
-
-      this.loading = false;
+      // 1️⃣ Insert job AND get it back
+      const { data: job, error } = await supabase
+        .from('jobs')
+        .insert({
+          title: this.title,
+          company: this.company,
+          location: this.location,
+          job_type: this.jobType,
+          experience: this.experience,
+          description: this.description,
+          recruiter_id: session.user.id,
+        })
+        .select()
+        .single();
 
       if (error) {
+        this.loading = false;
         alert(error.message);
         return;
       }
+
+      // 2️⃣ Insert job skills using returned job.id
+      if (this.selectedSkills.length) {
+        const rows = this.selectedSkills.map(skillId => ({
+          job_id: job.id,
+          skill_id: skillId,
+        }));
+
+        const { error: skillsError } = await supabase
+          .from('job_skills')
+          .insert(rows);
+
+        if (skillsError) {
+          console.error(skillsError);
+          alert('Job created, but skills failed to save');
+        }
+      }
+
+      this.loading = false;
 
       alert('Job posted successfully!');
       this.$router.push('/');

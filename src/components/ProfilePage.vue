@@ -1,200 +1,265 @@
 <template>
-  <div class="max-w-4xl mx-auto bg-white rounded-lg overflow-hidden shadow-md">
-    <div class="px-6 py-8">
+  <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
 
-      <!-- Tabs (job seekers only) -->
-      <div v-if="profile?.role === 'job_seeker'" class="flex justify-center space-x-4 mb-6">
-        <button @click="setActiveTab('profile')" :class="tabClass('profile')" class="px-6 py-2 rounded-lg font-medium">
-          User Profile
+    <!-- ================= LOADING GUARD ================= -->
+    <div v-if="!profile" class="text-center text-gray-500">
+      Loading profile...
+    </div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div v-else>
+
+      <!-- ================= JOB SEEKER TABS ================= -->
+      <div
+        v-if="profile.role === 'job_seeker'"
+        class="flex justify-center gap-4 mb-8"
+      >
+        <button
+          @click="activeTab = 'profile'"
+          :class="tabClass('profile')"
+          class="px-6 py-2 rounded"
+        >
+          Profile
         </button>
-        <button @click="setActiveTab('applications')" :class="tabClass('applications')" class="px-6 py-2 rounded-lg font-medium">
+        <button
+          @click="activeTab = 'applications'"
+          :class="tabClass('applications')"
+          class="px-6 py-2 rounded"
+        >
           Applications
         </button>
       </div>
 
-      <!-- Loading -->
-      <div v-if="!user || !profile" class="text-center text-gray-500 py-8">
-        Loading profile...
-      </div>
+      <!-- ================= RECRUITER DASHBOARD ================= -->
+      <div v-if="profile.role === 'recruiter'" class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">Recruiter Dashboard</h2>
 
-      <!-- ================= PROFILE PANEL ================= -->
-      <div v-if="profile && (profile.role === 'recruiter' || activeTab === 'profile')">
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Profile</h2>
-
-        <form @submit.prevent="handleUpdateProfile">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Name</label>
-            <input v-model="name" required class="w-full px-3 py-2 border rounded-md" />
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-            <input v-model="email" disabled class="w-full px-3 py-2 border bg-gray-100 rounded-md" />
-          </div>
-
-          <div v-if="profile.role === 'job_seeker'" class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Bio</label>
-            <textarea v-model="bio" rows="4" class="w-full px-3 py-2 border rounded-md"></textarea>
-          </div>
-
-          <div v-if="profile.role === 'job_seeker'" class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Skills</label>
-
-            <div class="flex items-center space-x-2 mb-3">
-              <input v-model="newSkill" placeholder="Enter skill" class="w-full px-3 py-2 border rounded-md" />
-              <button type="button" @click="addSkill" :disabled="!newSkill"
-                class="bg-indigo-500 text-white px-4 py-2 rounded-md disabled:opacity-50">
-                Add
-              </button>
-            </div>
-
-            <div class="space-y-2">
-              <div v-for="(skill, index) in skills" :key="index"
-                class="flex items-center justify-between bg-gray-100 px-3 py-2 rounded">
-                <span>{{ skill }}</span>
-                <button type="button" @click="removeSkill(index)" class="text-red-500 text-lg font-bold">×</button>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit"
-            class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
-            Update Profile
-          </button>
-        </form>
-
-        <!-- CV Upload -->
-        <div v-if="profile.role === 'job_seeker'" class="mt-6 border-t pt-4">
-          <h3 class="font-bold mb-2">Upload CV</h3>
-          <input type="file" @change="uploadCV" />
-
-          <div v-if="cv" class="mt-3 text-sm">
-            <strong>Current CV:</strong>
-            <a :href="cvUrl" target="_blank" class="text-indigo-600 underline ml-2">
-              {{ cv.file_name }}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- ================= JOB SEEKER APPLICATIONS ================= -->
-      <div v-if="profile?.role === 'job_seeker' && activeTab === 'applications'" class="mt-10">
-        <h2 class="text-xl font-bold mb-4">My Applications</h2>
-
-        <table class="min-w-full bg-white border rounded-md shadow-sm">
-          <thead>
-            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-              <th class="py-3 px-6 text-left">Job</th>
-              <th class="py-3 px-6 text-left">Company</th>
-              <th class="py-3 px-6 text-left">Date</th>
-              <th class="py-3 px-6 text-left">Status</th>
+        <!-- My Jobs -->
+        <h3 class="font-semibold mb-2">My Jobs</h3>
+        <table v-if="myJobs.length" class="min-w-full border mb-8">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">Title</th>
             </tr>
           </thead>
-
           <tbody>
-            <tr v-for="app in applications" :key="app.id" class="border-b">
-              <td class="py-3 px-6">{{ app.jobTitle }}</td>
-              <td class="py-3 px-6">{{ app.company }}</td>
-              <td class="py-3 px-6">{{ app.dateApplied }}</td>
-              <td class="py-3 px-6">{{ app.status }}</td>
+            <tr v-for="job in myJobs" :key="job.id" class="border-t">
+              <td class="p-2">{{ job.title }}</td>
             </tr>
+          </tbody>
+        </table>
+        <p v-else class="text-gray-400 mb-8">No jobs posted yet.</p>
 
-            <tr v-if="applications.length === 0">
-              <td colspan="4" class="text-center py-4 text-gray-500">
-                No applications yet
+        <!-- Applications Received -->
+        <h3 class="font-semibold mb-2">Applications Received</h3>
+        <table v-if="applicants.length" class="min-w-full border">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">Candidate</th>
+              <th class="p-2 text-left">Job</th>
+              <th class="p-2 text-left">Status</th>
+              <th class="p-2 text-left">CV</th>
+              <th class="p-2 text-left">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="app in applicants" :key="app.id" class="border-t">
+              <td class="p-2">{{ app.candidate }}</td>
+              <td class="p-2">{{ app.jobTitle }}</td>
+              <td class="p-2 capitalize">{{ app.status }}</td>
+
+              <td class="p-2">
+                <a
+                  v-if="app.cvUrl"
+                  :href="app.cvUrl"
+                  target="_blank"
+                  class="text-indigo-600 underline"
+                >
+                  View CV
+                </a>
+                <span v-else class="text-gray-400 italic">No CV</span>
+              </td>
+
+              <td class="p-2">
+                <div class="flex gap-2">
+                  <button
+                    @click="updateApplicationStatus(app.id, 'accepted')"
+                    :disabled="app.status !== 'pending'"
+                    class="bg-green-500 text-white px-3 py-1 rounded disabled:opacity-40"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    @click="updateApplicationStatus(app.id, 'rejected')"
+                    :disabled="app.status !== 'pending'"
+                    class="bg-red-500 text-white px-3 py-1 rounded disabled:opacity-40"
+                  >
+                    Reject
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
+
+        <p v-else class="text-gray-400">No applications yet.</p>
       </div>
 
-      <!-- ================= RECRUITER DASHBOARD ================= -->
-      <div v-if="profile?.role === 'recruiter'" class="mt-10">
+      <!-- ================= PROFILE ================= -->
+      <div v-if="activeTab === 'profile'">
+        <h2 class="text-2xl font-bold mb-6">Profile</h2>
 
-        <div class="flex justify-end mb-6">
-          <button @click="$router.push('/post-job')"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
-            + Post New Job
+        <form @submit.prevent="handleUpdateProfile">
+
+          <label class="block mb-3">
+            Name
+            <input v-model="name" class="input" />
+          </label>
+
+          <label class="block mb-3">
+            Email
+            <input v-model="email" disabled class="input bg-gray-100" />
+          </label>
+
+          <!-- Bio -->
+          <label v-if="profile.role === 'job_seeker'" class="block mb-4">
+            Bio
+            <textarea v-model="bio" rows="3" class="input"></textarea>
+          </label>
+
+          <!-- ================= SKILLS ================= -->
+          <div
+            v-if="profile.role === 'job_seeker'"
+            class="relative mb-6"
+            ref="skillsWrapper"
+          >
+            <label class="block mb-1">Skills</label>
+
+            <div
+              @click.stop="skillsOpen = !skillsOpen"
+              class="input cursor-pointer flex flex-wrap gap-2"
+            >
+              <span v-if="!selectedSkillIds.length" class="text-gray-400">
+                Select skills
+              </span>
+
+              <span
+                v-for="skill in selectedSkills"
+                :key="skill.id"
+                class="bg-indigo-100 px-2 py-1 rounded text-sm"
+              >
+                {{ skill.name }}
+                <button
+                  type="button"
+                  @click.stop="removeSkill(skill.id)"
+                  class="ml-1 font-bold"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+
+            <div
+              v-if="skillsOpen"
+              class="absolute z-10 bg-white border rounded w-full max-h-48 overflow-y-auto"
+            >
+              <label
+                v-for="skill in allSkills"
+                :key="skill.id"
+                class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50"
+              >
+                <input
+                  type="checkbox"
+                  :value="skill.id"
+                  v-model="selectedSkillIds"
+                />
+                {{ skill.name }}
+              </label>
+            </div>
+          </div>
+
+          <!-- ================= CV ================= -->
+          <div v-if="profile.role === 'job_seeker'" class="mb-6">
+            <label class="block mb-2">CV</label>
+            <input type="file" @change="uploadCV" />
+            <div v-if="cv" class="mt-2">
+              <a :href="cvUrl" target="_blank" class="text-indigo-600 underline">
+                {{ cv.file_name }}
+              </a>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            :disabled="savingProfile"
+            class="bg-indigo-600 text-white px-6 py-2 rounded"
+          >
+            {{ savingProfile ? 'Saving...' : 'Update Profile' }}
+          </button>
+        </form>
+
+        <!-- ================= PASSWORD ================= -->
+        <div class="mt-8 border-t pt-6">
+          <h3 class="font-semibold mb-3">Change Password</h3>
+
+          <input
+            v-model="newPassword"
+            type="password"
+            placeholder="New password"
+            class="input mb-2"
+          />
+          <input
+            v-model="confirmPassword"
+            type="password"
+            placeholder="Confirm password"
+            class="input mb-2"
+          />
+
+          <p v-if="passwordError" class="text-red-600 text-sm">
+            {{ passwordError }}
+          </p>
+          <p v-if="passwordSuccess" class="text-green-600 text-sm">
+            {{ passwordSuccess }}
+          </p>
+
+          <button
+            @click="changePassword"
+            :disabled="changingPassword"
+            class="bg-red-500 text-white px-5 py-2 rounded"
+          >
+            {{ changingPassword ? 'Updating...' : 'Update Password' }}
           </button>
         </div>
-
-        <!-- My Jobs -->
-        <h2 class="text-xl font-bold mb-4">My Jobs</h2>
-        <table class="min-w-full bg-white border rounded-md shadow-sm mb-10">
-          <thead>
-            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-              <th class="py-3 px-6 text-left">Title</th>
-              <th class="py-3 px-6 text-left">Company</th>
-              <th class="py-3 px-6 text-left">Applicants</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="job in myJobs" :key="job.id" class="border-b">
-              <td class="py-3 px-6">{{ job.title }}</td>
-              <td class="py-3 px-6">{{ job.company }}</td>
-              <td class="py-3 px-6">{{ job.applicantCount }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Applications Received -->
-        <h2 class="text-xl font-bold mb-4">Applications Received</h2>
-
-        <table class="min-w-full bg-white border rounded-md shadow-sm">
-          <thead>
-            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-              <th class="py-3 px-6 text-left">Candidate</th>
-              <th class="py-3 px-6 text-left">Job</th>
-              <th class="py-3 px-6 text-left">Status</th>
-              <th class="py-3 px-6 text-left">CV</th>
-              <th class="py-3 px-6 text-left">Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr v-for="app in applicants" :key="app.id" class="border-b">
-              <td class="py-3 px-6">{{ app.candidate }}</td>
-              <td class="py-3 px-6">{{ app.jobTitle }}</td>
-              <td class="py-3 px-6">{{ app.status }}</td>
-
-<td class="py-3 px-6">
-  <div v-if="app.cvUrl" class="flex items-center space-x-2">
-    <a
-      :href="app.cvUrl"
-      target="_blank"
-      class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition"
-    >
-      👁 View
-    </a>
-  </div>
-
-  <span v-else class="text-gray-400 italic">No CV</span>
-</td>
-
-<td class="py-3 px-6">
-  <div class="flex items-center space-x-2">
-    <button
-      @click="updateApplicationStatus(app.id, 'accepted')"
-      :disabled="app.status !== 'pending'"
-      class="inline-flex items-center px-4 py-1.5 rounded bg-green-500 text-white hover:bg-green-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
-    >
-      ✔ Accept
-    </button>
-
-    <button
-      @click="updateApplicationStatus(app.id, 'rejected')"
-      :disabled="app.status !== 'pending'"
-      class="inline-flex items-center px-4 py-1.5 rounded bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
-    >
-      ✖ Reject
-    </button>
-  </div>
-</td>
-            </tr>
-          </tbody>
-        </table>
-
       </div>
+
+      <!-- ================= JOB SEEKER APPLICATIONS ================= -->
+      <div
+        v-if="profile.role === 'job_seeker' && activeTab === 'applications'"
+      >
+        <h2 class="text-xl font-bold mb-4">My Applications</h2>
+
+        <table v-if="applications.length" class="min-w-full border">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">Job</th>
+              <th class="p-2 text-left">Company</th>
+              <th class="p-2 text-left">Date</th>
+              <th class="p-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="app in applications" :key="app.id" class="border-t">
+              <td class="p-2">{{ app.jobTitle }}</td>
+              <td class="p-2">{{ app.company }}</td>
+              <td class="p-2">{{ app.dateApplied }}</td>
+              <td class="p-2">{{ app.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p v-else class="text-gray-400">No applications yet.</p>
+      </div>
+
     </div>
   </div>
 </template>
@@ -212,24 +277,39 @@ export default {
       name: '',
       email: '',
       bio: '',
-      skills: [],
-      newSkill: '',
 
-      applications: [],
-      applicants: [],
+      allSkills: [],
+      selectedSkillIds: [],
+      skillsOpen: false,
+
       myJobs: [],
+      applicants: [],
+      applications: [],
 
       cv: null,
       cvUrl: null,
+
+      savingProfile: false,
+
+      newPassword: '',
+      confirmPassword: '',
+      changingPassword: false,
+      passwordError: '',
+      passwordSuccess: '',
     };
+  },
+
+  computed: {
+    selectedSkills() {
+      return this.allSkills.filter(s =>
+        this.selectedSkillIds.includes(s.id)
+      );
+    },
   },
 
   async mounted() {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      this.$router.push('/login');
-      return;
-    }
+    if (!session) return this.$router.push('/login');
 
     this.user = session.user;
     this.email = session.user.email;
@@ -237,174 +317,142 @@ export default {
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', this.user.id)
+      .eq('id', session.user.id)
       .single();
 
     this.profile = profile;
     this.name = profile.full_name || '';
     this.bio = profile.bio || '';
-    this.skills = profile.skills || [];
 
-// ================= JOB SEEKER =================
-if (profile.role === 'job_seeker') {
-  const { data: apps, error } = await supabase
-    .from('applications')
-    .select(`
-      id,
-      status,
-      applied_at,
-      jobs:job_id (
-        id,
-        title,
-        company
-      )
-    `)
-    .eq('job_seeker_id', this.user.id)
-    .order('applied_at', { ascending: false });
+    if (profile.role === 'job_seeker') {
+      const { data: skills } = await supabase.from('skills').select('*');
+      this.allSkills = skills || [];
 
-  console.log('RAW job seeker apps:', apps, error);
+      const { data: ps } = await supabase
+        .from('profile_skills')
+        .select('skill_id')
+        .eq('profile_id', session.user.id);
 
-  this.applications = (apps || []).map(a => ({
-    id: a.id,
-    jobTitle: a.jobs?.title || 'Unknown job',
-    company: a.jobs?.company || 'Unknown company',
-    dateApplied: new Date(a.applied_at).toLocaleDateString(),
-    status: a.status,
-  }));
+      this.selectedSkillIds = ps.map(p => p.skill_id);
 
-  console.log('MAPPED job seeker applications:', this.applications);
+      const { data: cvs } = await supabase
+        .from('cvs')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-  // Auto-open Applications tab if any exist
-  if (this.applications.length > 0) {
-    this.activeTab = 'applications';
-  }
-
-  // ---- Fetch latest CV for profile panel ----
-  const { data: cvs } = await supabase
-    .from('cvs')
-    .select('file_name,file_path,created_at')
-    .eq('user_id', this.user.id)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  console.log('Job seeker CV rows:', cvs);
-
-  if (cvs?.length) {
-    this.cv = cvs[0];
-    const { data: url } = supabase.storage
-      .from('cvs')
-      .getPublicUrl(cvs[0].file_path);
-
-    this.cvUrl = url.publicUrl;
-  }
-}
-
-    // ================= RECRUITER =================
-    if (profile.role === 'recruiter') {
-      const { data: jobs } = await supabase
-        .from('jobs')
-        .select('id,title,company')
-        .eq('recruiter_id', this.user.id);
-
-      this.myJobs = jobs || [];
+      if (cvs?.length) {
+        this.cv = cvs[0];
+        const { data } = await supabase.storage
+          .from('cvs')
+          .createSignedUrl(cvs[0].file_path, 3600);
+        this.cvUrl = data.signedUrl;
+      }
 
       const { data: apps } = await supabase
         .from('applications')
-        .select('id,status,applied_at,job_seeker_id,job_id')
-        .order('applied_at', { ascending: false });
+        .select(`id, status, applied_at, jobs(title,company)`)
+        .eq('job_seeker_id', session.user.id);
 
-      const recruiterApps = (apps || []).filter(a =>
-        this.myJobs.some(j => j.id === a.job_id)
-      );
-
-      console.log('recruiterApps', recruiterApps);
-
-      const jobSeekerIds = [...new Set(
-        recruiterApps.map(a => a.job_seeker_id).filter(Boolean)
-      )];
-
-      console.log('jobSeekerIds', jobSeekerIds);
-
-      let cvs = [];
-      if (jobSeekerIds.length) {
-        const { data } = await supabase
-          .from('cvs')
-          .select('user_id,file_name,file_path,created_at')
-          .in('user_id', jobSeekerIds)
-          .order('created_at', { ascending: false });
-
-        cvs = data || [];
-      }
-
-      console.log('cvs', cvs);
-
-      const latestCvByUser = {};
-      cvs.forEach(cv => {
-        if (!latestCvByUser[cv.user_id]) {
-          latestCvByUser[cv.user_id] = cv;
-        }
-      });
-
-      console.log('latestCvByUser', latestCvByUser);
-
-      this.applicants = await Promise.all(recruiterApps.map(async a => {
-        const cv = latestCvByUser[a.job_seeker_id];
-
-        let cvUrl = null;
-        if (cv?.file_path) {
-          const { data } = await supabase.storage
-            .from('cvs')
-            .createSignedUrl(cv.file_path, 3600);
-          cvUrl = data?.signedUrl || null;
-        }
-
-        return {
-          id: a.id,
-          jobTitle: this.myJobs.find(j => j.id === a.job_id)?.title || 'Unknown job',
-          candidate: a.job_seeker_id,
-          status: a.status,
-          cvFileName: cv?.file_name || null,
-          cvUrl,
-        };
+      this.applications = apps.map(a => ({
+        id: a.id,
+        jobTitle: a.jobs.title,
+        company: a.jobs.company,
+        dateApplied: new Date(a.applied_at).toLocaleDateString(),
+        status: a.status,
       }));
     }
+
+    if (profile.role === 'recruiter') {
+      const { data: jobs } = await supabase
+        .from('jobs')
+        .select('id,title')
+        .eq('recruiter_id', session.user.id);
+
+      this.myJobs = jobs || [];
+
+      const jobIds = this.myJobs.map(j => j.id);
+      if (jobIds.length) {
+        const { data: apps } = await supabase
+          .from('applications')
+          .select(`id,status,job_id,job_seeker_id,profiles:job_seeker_id(full_name)`)
+          .in('job_id', jobIds);
+
+        this.applicants = await Promise.all(
+          apps.map(async a => {
+            const { data: cv } = await supabase
+              .from('cvs')
+              .select('*')
+              .eq('user_id', a.job_seeker_id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+
+            let cvUrl = null;
+            if (cv) {
+              const { data } = await supabase.storage
+                .from('cvs')
+                .createSignedUrl(cv.file_path, 3600);
+              cvUrl = data?.signedUrl;
+            }
+
+            return {
+              id: a.id,
+              jobTitle: this.myJobs.find(j => j.id === a.job_id)?.title,
+              candidate: a.profiles?.full_name || 'Unknown',
+              status: a.status,
+              cvUrl,
+            };
+          })
+        );
+      }
+    }
+
+    document.addEventListener('click', this.closeSkillsDropdown);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeSkillsDropdown);
   },
 
   methods: {
     tabClass(tab) {
       return this.activeTab === tab
         ? 'bg-indigo-500 text-white'
-        : 'bg-gray-200 text-gray-800';
+        : 'bg-gray-200';
     },
 
-    setActiveTab(tab) {
-      this.activeTab = tab;
+    closeSkillsDropdown(e) {
+      if (this.$refs.skillsWrapper && !this.$refs.skillsWrapper.contains(e.target)) {
+        this.skillsOpen = false;
+      }
     },
 
-    addSkill() {
-      if (!this.newSkill) return;
-      this.skills.push(this.newSkill);
-      this.newSkill = '';
-    },
-
-    removeSkill(index) {
-      this.skills.splice(index, 1);
+    removeSkill(id) {
+      this.selectedSkillIds = this.selectedSkillIds.filter(s => s !== id);
     },
 
     async handleUpdateProfile() {
-      const payload = { full_name: this.name };
-      if (this.profile.role === 'job_seeker') {
-        payload.bio = this.bio;
-        payload.skills = this.skills;
+      this.savingProfile = true;
+
+      await supabase.from('profiles').update({
+        full_name: this.name,
+        bio: this.bio,
+      }).eq('id', this.user.id);
+
+      await supabase.from('profile_skills').delete().eq('profile_id', this.user.id);
+
+      if (this.selectedSkillIds.length) {
+        await supabase.from('profile_skills').insert(
+          this.selectedSkillIds.map(id => ({
+            profile_id: this.user.id,
+            skill_id: id,
+          }))
+        );
       }
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(payload)
-        .eq('id', this.user.id);
-
-      if (error) return alert(error.message);
-      alert('Profile updated');
+      this.savingProfile = false;
     },
 
     async uploadCV(e) {
@@ -414,7 +462,6 @@ if (profile.role === 'job_seeker') {
       const path = `${this.user.id}/${Date.now()}-${file.name}`;
 
       await supabase.storage.from('cvs').upload(path, file, { upsert: true });
-
       await supabase.from('cvs').insert({
         user_id: this.user.id,
         file_name: file.name,
@@ -426,23 +473,48 @@ if (profile.role === 'job_seeker') {
         .createSignedUrl(path, 3600);
 
       this.cv = { file_name: file.name };
-      this.cvUrl = data?.signedUrl || null;
-
-      alert('CV uploaded');
+      this.cvUrl = data.signedUrl;
     },
 
-    async updateApplicationStatus(appId, status) {
-      const { error } = await supabase
-        .from('applications')
-        .update({ status })
-        .eq('id', appId);
+    async changePassword() {
+      this.passwordError = '';
+      this.passwordSuccess = '';
+      this.changingPassword = true;
 
-      if (error) return alert('Failed to update status');
+      if (this.newPassword !== this.confirmPassword) {
+        this.passwordError = 'Passwords do not match';
+        this.changingPassword = false;
+        return;
+      }
+
+      await supabase.auth.updateUser({ password: this.newPassword });
+
+      this.passwordSuccess = 'Password updated successfully';
+      this.newPassword = '';
+      this.confirmPassword = '';
+      this.changingPassword = false;
+    },
+
+    async updateApplicationStatus(id, status) {
+      await supabase.from('applications').update({ status }).eq('id', id);
+
+      await supabase.functions.invoke('send-application-status-email', {
+        body: { application_id: id, status },
+      });
 
       this.applicants = this.applicants.map(a =>
-        a.id === appId ? { ...a, status } : a
+        a.id === id ? { ...a, status } : a
       );
     },
   },
 };
 </script>
+
+<style scoped>
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+</style>
