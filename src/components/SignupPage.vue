@@ -183,6 +183,6 @@ async function handleSignup() {
 
 function goToLogin() {
   showSuccessModal.value = false;
-  router.push('/');
+  router.push('/login');
 }
 </script>
