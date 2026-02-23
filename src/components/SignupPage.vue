@@ -75,7 +75,7 @@
           </div>
         </div>
 
-        <!-- Error -->
+        <!-- Error message -->
         <p v-if="error" class="text-red-600 text-sm mb-4">
           {{ error }}
         </p>
@@ -90,6 +90,29 @@
         </button>
       </form>
     </div>
+
+    <!-- Success Modal -->
+    <div
+      v-if="showSuccessModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm text-center">
+        <h3 class="text-lg font-semibold mb-3">
+          Account created successfully
+        </h3>
+
+        <p class="text-gray-600 mb-6">
+          Please confirm your email address and log in to access your account.
+        </p>
+
+        <button
+          @click="goToLogin"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Go to Login
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -103,9 +126,10 @@ const router = useRouter();
 const fullName = ref('');
 const email = ref('');
 const password = ref('');
-const role = ref('job_seeker'); // default
+const role = ref('job_seeker');
 const error = ref(null);
 const loading = ref(false);
+const showSuccessModal = ref(false);
 
 async function handleSignup() {
   error.value = null;
@@ -143,14 +167,12 @@ async function handleSignup() {
     });
 
     if (signUpError) {
-      console.error('SUPABASE SIGNUP ERROR:', signUpError);
       throw signUpError;
     }
 
-    router.push('/');
+    showSuccessModal.value = true;
 
   } catch (err) {
-    console.error('Signup failed:', err);
     error.value =
       err?.message ||
       'Signup failed. Email may already exist or password is too weak.';
@@ -159,4 +181,8 @@ async function handleSignup() {
   }
 }
 
+function goToLogin() {
+  showSuccessModal.value = false;
+  router.push('/');
+}
 </script>
